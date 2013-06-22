@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Get Facebook &quot;Page&quot; data</title>
+<script type="text/javascript">
+function ajaxRequest(){
+ var activexmodes=["Msxml2.XMLHTTP", "Microsoft.XMLHTTP"] //activeX versions to check for in IE
+ if (window.ActiveXObject){ //ActiveXObject in IE (as XMLHttpRequest in IE7 is broken)
+  for (var i=0; i<activexmodes.length; i++){
+   try{
+    return new ActiveXObject(activexmodes[i])
+   }
+   catch(e){
+    //error
+   }
+  }
+ }
+ else if (window.XMLHttpRequest) // Mozilla, Safari etc
+  return new XMLHttpRequest()
+ else
+  return false
+}
+
+var mygetrequest=new ajaxRequest();
+mygetrequest.onreadystatechange=function(){
+ if (mygetrequest.readyState==4){
+  if (mygetrequest.status==200 || window.location.href.indexOf("http")==-1){
+	  
+   var jsondata=eval("("+mygetrequest.responseText+")");
+   pageentries=jsondata.data;
+   pagination=jsondata.paging;// Crate next and pre pagination 
+   var output="<ul><li class='active'><a href='#'><span><em>You are seaching for:</em> "+querysearchboxText+"</span></a></li>";
+	   if(pageentries.length == 0){
+		output+='<li class="last"><a href="#"><span>No Result found</span></a></li>';
+		}
+	   for (var i=0; i<pageentries.length; i++){
+			if(i == pageentries.length -1){
+			   output+='<li class="last"><a href="#"><span>';
+			}else{
+			   output+='<li><a href="#"><span>';
+			}
+		output+='<strong>Page Id</strong>: '+pageentries[i].id+'<br />';
+		output+='<strong>Page Category</strong>: '+pageentries[i].category+'<br />';
+		output+='<strong>Page Name</strong>: '+pageentries[i].name;
+		output+='</span></a></li>';
+	   }
+   output+='</ul>'
+   document.getElementById("cssmenu").innerHTML=output;
+   
+
+  }
+  else{
+   alert("An error has occured making the request");
+  }
+ }
+}
+window.onload = function() {
+		document.getElementById("querysearchbox").value = "";
+		document.getElementById("searchbutton").onclick = function getfbpage(){
+		querysearchboxText = document.getElementById("querysearchbox").value;
+			if (querysearchboxText==null || querysearchboxText=="")
+			{
+				alert("Enter facebook page name to search box");
+				return false;
+			}else{
+			querysearchbox = "https://graph.facebook.com/search?q="+querysearchboxText+"&type=page";
+			mygetrequest.open("GET", querysearchbox, true)
+			mygetrequest.send(null)
+			}
+		}
+}
+</script>
+<style type="text/css">
+.searchbox {
+	border-color: #3371D8;
+	border-radius: 4px 0 0 4px;
+	border-style: solid;
+	border-width: 1px;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+	font: 13px verdana, arial;
+	padding-bottom: 6px;
+	padding-left: 6px;
+	padding-right: 6px;
+	padding-top: 6px !important;
+	width: 247px;
+}
+.searchbutton {
+	border-color: #3371D8;
+	border-radius: 0 4px 4px 0;
+	border-style: solid;
+	border-width: 1px 1px 1px 0;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+	vertical-align: top;
+}
+/* CSS for Vertical Menu */
+#cssmenu {
+	padding: 0;
+	margin: 0;
+	border: 0;
+}
+#cssmenu ul, #cssmenu li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+#cssmenu ul {
+	position: relative;
+	z-index: 597;
+}
+#cssmenu ul li {
+	min-height: 1px;
+	line-height: 1em;
+}
+#cssmenu a {
+	display: block;
+	text-decoration: none;
+}
+/* Custom CSS Styles */
+#cssmenu {
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	width: 500px;
+}
+#cssmenu ul {
+	background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2ZmZmZmZiIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmNWY1ZjUiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+	background-color: #F1F1F1;
+	background-image: -webkit-linear-gradient(top, white, whitesmoke);
+	background-image: -moz-linear-gradient(top, white, whitesmoke);
+	background-image: -o-linear-gradient(top, white, whitesmoke);
+	background-image: linear-gradient(white, whitesmoke);
+	border: 1px solid #CCC;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	-moz-background-clip: padding;
+	-webkit-background-clip: padding-box;
+	background-clip: padding-box;
+}
+#cssmenu li {
+	border-bottom: 1px solid #CCC;
+	-moz-box-shadow: 0 1px 0 white;
+	-webkit-box-shadow: 0 1px 0 white;
+	box-shadow: 0 1px 0 white;
+	padding: 1px;
+}
+#cssmenu li:last-child, #cssmenu li.last {
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border-bottom: 0 none;
+}
+#cssmenu li.active {
+	-moz-box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+	-webkit-box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+	box-shadow: 1px 2px 0 -1px rgba(0, 0, 0, 0.25);
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAuCAIAAABmjeQ9AAAAA3NCSVQICAjb4U/gAAAAN0lEQVQImY2MsQ0AIAzDrNzKZzzDV2agQxekTlFiK5y1g0QNEDT6Emqv7pB//yTSfAk0f8DBKBeQp0niRT0BVwAAAABJRU5ErkJggg==);
+	background-image: -webkit-linear-gradient(top, #c864a3, #b8418c);
+	background-image: -moz-linear-gradient(top, #c864a3, #b8418c);
+	background-image: -o-linear-gradient(top, #c864a3, #b8418c);
+	background-image: linear-gradient(#c864a3, #b8418c);
+	position: relative;
+	left: -8px;
+	width: 325px;
+}
+#cssmenu li.active table {
+	margin-top:5px;
+}
+#cssmenu li.active a {
+	border: 1px dashed #d58ab9;
+	border: 1px dashed rgba(255, 255, 255, 0.25);
+	border-right: 0 none;
+	position: relative;
+	color: #FFF;
+	text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+}
+#cssmenu li.active:before, #cssmenu li.active:after {
+	content: '';
+}
+#cssmenu li.active:before {
+	z-index: 1;
+	width: 0px;
+	height: 0px;
+	position: absolute;
+	left: 0;
+	bottom: -5px;
+	border-style: solid;
+	border-width: 0 8px 5px 0;
+	border-color: transparent #92346f transparent transparent;
+}
+#cssmenu li.active:after {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAAwCAYAAAD6g+EuAAAFaklEQVR4Xq2VbWiVZRjHf/ez03TzjGltBlmQq/zWpyCKgrIogrCQAqs01akQCUGf+pSgk3BqSmhIGlaiGJEhhJrAdKnO0I9lrmpL517Uve949n7/W/N+nquz1nSjSx53n+ec5/e/7uu6/vfjzq7cex54Fujif44I9AjimKAYBIhxQ8r5WghEckOynxlcIPSok44g0oGRwBRfOHAxwUTQWLBQeChVOGcWvc2daFiP4zgCPP/YrsW9TDHOlu8FBwgiAem5pQiQeBLpyI/lXxYw9QAJAdGNhg6G+gaQFespiSNnV0xVQGA1F9nLHThAEjh3UwAO1UxFQPElIlC8xgnSZSW4CBDPIR2sWf5F/qTYii8RWctBiOG+QWaUlQZ5XkAcrFk2GQGbx8i24cEzWqLh7ACymXwROHDmdgWkxAMRkhkg/Ms2dELYGlGEpIVIB2qWfn5LAclmP1KMlRVMmBvTc0twkQNpoWDfmbf25DFhmHMjSeAVwA55B97kR3ow2mQASa8i9p1eMoGAD8l5EbkkWxAe5BGgsIMbl9pGBeJpkrQI2HN68X8J2O4jKe6nwI9/SGX+bAcJH/fAa4nwuyeouTUUgc176LhkIsSlg6IHSojyIvAsO/XmZ2MFrG8iZC6BNdQE7Lug4a0HCET5qTdMwNiyhmJwW9sOsPXNEg33DyQQSeWnXt/9icFDUl5ESHFWxg5NNaiJgCdT3x6TcJFD4u2Tr+3eZqljDpWEB4Rlbk4jN3sPyulBKYwK6N0fFn26BZsYsz9h3uN6KV6bsZA9iJ1FQ6MCURTh5N7D60P5MOcJwGOiyYSACOEB7wlWQPLgRaa+Fd83QPrBEshzCN4HVUjgTryyUzhwkJDkTMgCHBZywVTOnnMOsHvromBZK3XYhR0BpiKE/cZGFgLUC2HP2rT4cR7wILyJ+VwvCCGJvGkpZj48h/y70iDRmu3cKc/alCTAIdneJIUtO5wHOatXTq28yCvMp2jebLIN7fS336Cuq3F/edWGr4D741PR4N5bub1PqoO3xssT/oPieXeTudRGf1uG+s6mAyPgXYRwVS/vEOOEA6S4SQ45gQBn3+Egf2Yhgx1Z6nuav15xvCJ26uURbp2remm7DBeINi22tlvkp6czmOlL0rjU0/zN8uMV2xPwgh11draYzSH3iLFSCPCQXzSd9EOliR8udTcZGBqqFmyvk4TM/uZGCYyuHBEh0mWldNdeRRKXu1u+XX5iQwKW9IeE2V+SsSxllPPXJ7vrqm1hqKePK5lrh5ZXV3wcwFf+BideECBIEZQshMasppWk6WvLgGAo009j9vp3S0+s34aBf8fGM2lTxNgyAMj8OH0EXHjvrMRYjTdaD4+Aw+lHYwBbmLlICbOvA+yzcHIUzJlJ589NSNCUvX54afX6TQHTJOk3xoQd244U3sYtdqtDCIeAzp+a8YODtPS2HR0D/pXxQpZsRKKkRLXgnpmJI/3AAC3ZtqOrT1XG4Obxwf8+siPlzLhjxn2zyL9zBgo2bOntOLb6dOWm3uF+H8C1TBTGC6eirNN3FBfQeaEpgNtHwBs3BnDLxGArbRwRANjrreNCMxoc5lpvx/HVZyoTMHBLsDU01FyIorLS+EYCXnVmY0UAXwVqZSlxu2VJFT84G5fKIxZs7e+sXlVTaWC4eNtgwGGmTOEcXRdbAI2Au6pX1mxcF8DXJgvOrbkj1VV7FSTa+rtPrjm3tcLA/DJZMIChhTv6zGa19fWcXHP+o3UdAz1DwHXgwtH5W4QTDhdeGkIAZrIEAthnMIH9T3xw+p1zW9f+E/z9/M0y19qrZ/wwpHP2hnICBzwdhFqBC4CffI3Hj+jW4KnHX+Rk60d1mEYGAAAAAElFTkSuQmCC) no-repeat;
+	display: block;
+	height: 48px;
+	width: 24px;
+	position: absolute;
+	right: -24px;
+	top: 0px;
+	z-index: 1;
+}
+#cssmenu a {
+	border: 1px solid transparent;
+	color: #444;
+	line-height: 40px;
+	padding: 0 12px;
+	text-align: left;
+	text-overflow: ellipsis;
+}
+.buttonitem {
+	-moz-box-shadow:inset 0px 1px 0px 0px #f29c93;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #f29c93;
+	box-shadow:inset 0px 1px 0px 0px #f29c93;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fe1a00), color-stop(1, #ce0100) );
+	background:-moz-linear-gradient( center top, #fe1a00 5%, #ce0100 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fe1a00', endColorstr='#ce0100');
+	background-color:#fe1a00;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #d83526;
+	display:inline-block;
+	color:#ffffff;
+	font-family:arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #b23e35;
+}
+.buttonitem:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ce0100), color-stop(1, #fe1a00) );
+	background:-moz-linear-gradient( center top, #ce0100 5%, #fe1a00 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ce0100', endColorstr='#fe1a00');
+	background-color:#ce0100;
+}
+.buttonitem:active {
+	position:relative;
+	top:1px;
+}
+</style>
+</head>
+<body>
+<table border="0" cellSpacing="0" cellPadding="0">
+  <tbody>
+    <tr>
+      <td><input class="searchbox" id="querysearchbox" name="keyword" value="" size="32" type="text" /></td>
+      <td><input class="searchbutton" id="searchbutton" src="stp_search_small.gif" type="image" /></td>
+    </tr>
+  </tbody>
+</table>
+<div id='cssmenu'>
+</div>
+<div id="pagination">
+</div>
+</body>
+</html>
